@@ -7,6 +7,7 @@ import { productApi } from "@/lib/apiClient";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/currency";
+import { DELIVERY_CONFIG, DEBOUNCE_CONFIG } from "@/lib/constants";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
@@ -14,12 +15,12 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { items, updateQuantity, removeFromCart, subtotal, clearCart } = useCart();
-  const deliveryFee = subtotal > 5000 ? 0 : 299; // Free delivery over 5000 PKR (~18 USD)
+  const deliveryFee = subtotal > DELIVERY_CONFIG.FREE_THRESHOLD ? 0 : DELIVERY_CONFIG.STANDARD_FEE;
   const total = subtotal + deliveryFee;
 
-  // Validate stock on mount
+  // Validate stock on cart changes with debouncing
   useEffect(() => {
-    const validateStock = async () => {
+    const timer = setTimeout(async () => {
       for (const item of items) {
         try {
           const response = await productApi.getOne(item.product._id || item.product.id);
@@ -41,12 +42,10 @@ function CartPage() {
           console.error('Stock validation error:', error);
         }
       }
-    };
+    }, DEBOUNCE_CONFIG.STOCK_VALIDATION);
 
-    if (items.length > 0) {
-      validateStock();
-    }
-  }, []);
+    return () => clearTimeout(timer);
+  }, [items, removeFromCart, updateQuantity]);
 
   if (items.length === 0) {
     return (

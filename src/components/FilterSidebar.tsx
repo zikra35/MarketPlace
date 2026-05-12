@@ -50,7 +50,7 @@ export interface FilterState {
 }
 
 export const defaultFilters: FilterState = {
-  priceRange: [0, 200],
+  priceRange: [0, 100000],
   selectedColors: [],
   selectedCategories: [],
   selectedBrands: [],
@@ -64,7 +64,7 @@ export function hasActiveFilters(filters: FilterState) {
     filters.selectedBrands.length > 0 ||
     filters.minRating > 0 ||
     filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 200
+    filters.priceRange[1] < 100000
   );
 }
 
@@ -141,15 +141,15 @@ export function FilterSidebar({ filters, onChange }: FilterSidebarProps) {
         <h3 className="font-semibold text-sm text-foreground mb-3">Price Range</h3>
         <Slider
           min={0}
-          max={200}
-          step={5}
+          max={100000}
+          step={500}
           value={[priceRange[0], priceRange[1]]}
           onValueChange={(v) => update({ priceRange: [v[0], v[1]] })}
           className="mb-2"
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>${priceRange[0]}</span>
-          <span>${priceRange[1]}</span>
+          <span>₨{priceRange[0].toLocaleString('en-PK')}</span>
+          <span>₨{priceRange[1].toLocaleString('en-PK')}</span>
         </div>
       </div>
 

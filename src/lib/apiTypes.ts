@@ -35,6 +35,7 @@ export interface AuthResponse {
 // Product Types
 export interface Product {
   _id: string;
+  id?: string;
   name: string;
   category: string;
   brand: string;

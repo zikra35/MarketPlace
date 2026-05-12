@@ -12,6 +12,11 @@ export function ProductCard({ product }: { product: Product }) {
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const wishlisted = isInWishlist(product.id);
 
+  // Calculate discount percentage from originalPrice and price
+  const discountPercent = product.originalPrice && product.originalPrice > product.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -20,9 +25,9 @@ export function ProductCard({ product }: { product: Product }) {
       transition={{ duration: 0.3 }}
       className="group relative bg-card rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300"
     >
-      {product.discount && product.discount > 0 && (
+      {discountPercent > 0 && (
         <span className="absolute top-3 left-3 z-10 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded-md">
-          -{product.discount}%
+          -{discountPercent}%
         </span>
       )}
 
@@ -45,7 +50,10 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="p-4 space-y-2">
         {product.seller && (
-          <p className="text-xs text-muted-foreground">{typeof product.seller === 'object' ? product.seller.storeName || product.seller.name : product.seller} {product.sellerVerified && "✓"}</p>
+          <p className="text-xs text-muted-foreground">
+            {product.seller?.storeName || product.seller?.name || 'Unknown Seller'}
+            {product.sellerVerified && " ✓"}
+          </p>
         )}
         <Link to="/products/$id" params={{ id: product.id }}>
           <h3 className="font-semibold text-sm text-card-foreground line-clamp-2 hover:text-accent transition-colors">{product.name}</h3>

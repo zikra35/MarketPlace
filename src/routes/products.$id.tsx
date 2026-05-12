@@ -12,6 +12,7 @@ import { handleApiError } from "@/lib/handleApiError";
 import { ProductCardSkeleton, ReviewCardSkeleton } from "@/components/SkeletonLoaders";
 import { useNavigate } from "@tanstack/react-router";
 import { formatPrice } from "@/lib/currency";
+import { POLLING_INTERVALS } from "@/lib/constants";
 
 export const Route = createFileRoute("/products/$id")({
   component: ProductDetailPage,
@@ -57,7 +58,7 @@ function ProductDetailPage() {
 
     loadProduct();
 
-    // Poll for stock updates every 5 seconds to show real-time stock changes
+    // Poll for stock updates periodically to show real-time stock changes
     const pollInterval = setInterval(async () => {
       try {
         const response = await productApi.getOne(id);
@@ -75,7 +76,7 @@ function ProductDetailPage() {
       } catch (error) {
         // Silently fail on polling errors
       }
-    }, 5000);
+    }, POLLING_INTERVALS.STOCK_UPDATE);
 
     return () => clearInterval(pollInterval);
   }, [id, navigate]);
@@ -115,7 +116,11 @@ function ProductDetailPage() {
           setSimilarProducts(response.data.filter((p: any) => p.id !== product.id).slice(0, 4));
         }
       } catch (error) {
-        // Silently fail for similar products
+        // Log error for debugging but don't show to user (similar products are optional)
+        console.error('[Product Detail] Failed to load similar products:', {
+          category: product.category,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     };
 
@@ -163,9 +168,9 @@ function ProductDetailPage() {
         {/* Image */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="relative aspect-square rounded-2xl overflow-hidden bg-muted">
           <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-          {product.discount > 0 && (
+          {product.originalPrice && product.originalPrice > product.price && (
             <span className="absolute top-4 left-4 bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1.5 rounded-lg">
-              -{product.discount}% OFF
+              -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
             </span>
           )}
         </motion.div>

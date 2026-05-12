@@ -10,6 +10,7 @@ import { handleApiError } from "@/lib/handleApiError";
 import { normalizeProducts } from "@/lib/productNormalizer";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { POLLING_INTERVALS } from "@/lib/constants";
 import heroMegaSale from "@/assets/hero-mega-sale.jpg";
 import heroFlashDeals from "@/assets/hero-flash-deals.jpg";
 import heroNewArrivals from "@/assets/hero-new-arrivals.jpg";
@@ -76,8 +77,8 @@ function HomePage() {
 
     fetchProducts();
     
-    // Refetch products every 10 seconds to show new products and updated stock
-    const interval = setInterval(fetchProducts, 10000);
+    // Refetch products periodically to show new products and updated stock
+    const interval = setInterval(fetchProducts, POLLING_INTERVALS.PRODUCT_REFRESH);
     return () => clearInterval(interval);
   }, [navigate]);
 
@@ -94,8 +95,10 @@ function HomePage() {
   const allProducts = useMemo(() => applyFilters(products, filters), [products, filters]);
 
   const sidebar = (
-    <div className="bg-card rounded-xl p-5 shadow-card">
-      <h2 className="font-bold text-foreground mb-4">Filters</h2>
+    <div className={`bg-card rounded-xl p-5 shadow-card ${active ? 'ring-2 ring-primary/50' : ''}`}>
+      <h2 className="font-bold text-foreground mb-4">
+        Filters {active && <span className="text-primary text-sm">(Active)</span>}
+      </h2>
       <FilterSidebar filters={filters} onChange={setFilters} />
     </div>
   );
