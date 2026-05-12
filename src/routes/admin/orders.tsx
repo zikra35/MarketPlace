@@ -43,6 +43,10 @@ function AdminOrdersPage() {
       toast.success('Order status updated');
       queryClient.invalidateQueries({ queryKey: ['all-orders'] });
     },
+    onError: (error: any) => {
+      console.error('Update status error:', error);
+      toast.error(error.response?.data?.message || 'Failed to update order status');
+    },
   });
 
   const deleteOrderMutation = useMutation({
@@ -50,6 +54,10 @@ function AdminOrdersPage() {
     onSuccess: () => {
       toast.success('Order deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+    },
+    onError: (error: any) => {
+      console.error('Delete order error:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete order');
     },
   });
 

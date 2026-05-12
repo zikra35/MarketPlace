@@ -1,7 +1,7 @@
 {
-  "name": "shop-sparkle-backend",
+  "name": "marketplace-backend",
   "version": "1.0.0",
-  "description": "Shop Sparkle Backend - E-commerce REST API",
+  "description": "MarketPlace Backend - E-commerce REST API",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
